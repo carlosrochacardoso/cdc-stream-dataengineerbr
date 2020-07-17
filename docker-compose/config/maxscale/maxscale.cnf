@@ -1,0 +1,48 @@
+# The Replication Proxy service
+[replication-service]
+type=service
+router=binlogrouter
+server_id=2
+master_id=1
+filestem=mariadb-bin
+user=maxuser
+password=maxpwd
+mariadb10-compatibility=1
+binlogdir=/var/lib/maxscale/
+
+# The Avro conversion service
+[avro-service]
+type=service
+router=avrorouter
+source=replication-service
+filestem=mariadb-bin
+start_index=1
+avrodir=/var/lib/maxscale
+user=maxuser
+password=maxpwd
+
+
+# The listener for the replication-service
+[replication-listener]
+type=listener
+service=replication-service
+protocol=MariaDBClient
+port=6603
+
+# The client listener for the avro-service
+[avro-listener]
+type=listener
+service=avro-service
+protocol=CDC
+port=4001
+
+# The MaxAdmin service and listener for MaxScale administration
+[CLI]
+type=service
+router=cli
+
+[CLI-Listener]
+type=listener
+service=CLI
+protocol=maxscaled
+socket=default
