@@ -16,6 +16,6 @@ CREATE TABLE contacts (
     address     VARCHAR(120)    NOT NULL,
     mail        VARCHAR(120)    NOT NULL,
     birthdate   DATE            NOT NULL,
-    lastupdate  DATE,
+    lastupdate  DATETIME,
     PRIMARY KEY (id)
 );

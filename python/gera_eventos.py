@@ -5,24 +5,30 @@ import datetime
 import argparse
 from faker import Faker
 
-parser = argparse.ArgumentParser(description = "Gera N eventos de insert update e delete para db crm, tabela contacts, em uma instância MariaDB")
-parser.add_argument("-n", "--num",
-                    help="Número de transações geradas para cada comando (insert, update, select)",
-                    default=5, dest="n")
+parser = argparse.ArgumentParser(description = "Gera N eventos de insert update e delete para db crm, tabela contacts, em uma instância MariaDB", conflict_handler="resolve")
+parser.add_argument("-n", "--num", help="Número de contatos que serão inseridos para gerar eventos no MariaDB", default=5, dest="n")
+parser.add_argument("-h", "--host", dest="host", help="Endereço de rede para o MariaDB", default="localhost")
+parser.add_argument("-P", "--port", dest="port", help="Porta de conexão com o MariaDB", default="3306")
+parser.add_argument("-u", "--user", dest="user", help="Usuário do MariaDB", default="")
+parser.add_argument("-p", "--password", dest="password", help="Password do MariaDB", default="")
+parser.add_argument("-d", "--db", dest="database", help="Nome do db", default="")
 
 opts = parser.parse_args(sys.argv[1:])
 
-print("Gerando eventos para a tabela de contatos...")
+try:
+    n = int(opts.n)
+except Exception as e:
+    print(f"Error: {e}")
+    sys.exit(1)
 
 # Connect to MariaDB Platform
 try:
     conn = mariadb.connect(
-        user="root",
-        password="example",
-        host="127.0.0.1",
-        port=3306,
-        database="crm"
-
+        user=opts.user,
+        password=opts.password,
+        host=opts.host,
+        port=int(opts.port),
+        database=opts.database
     )
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
@@ -34,11 +40,7 @@ cur = conn.cursor()
 #Init Faker
 fake = Faker('pt_BR')
 
-try:
-    n = int(opts.n)
-except Exception as e:
-    print(f"Error: {e}")
-    sys.exit(1)
+print("Gerando eventos para a tabela de contatos...")
 
 for i in range(n):
     c = fake.simple_profile() 
@@ -48,10 +50,10 @@ for i in range(n):
         print(f"Error: {e}")
         sys.exit(1)
     
-    time.sleep(3)
+    time.sleep(2)
 
 try: 
-    cur.execute("UPDATE contacts SET lastupdate = ?", (datetime.date.today(),)) 
+    cur.execute("UPDATE contacts SET lastupdate = NOW()") 
     cur.execute("DELETE FROM contacts") 
 except mariadb.Error as e: 
     print(f"Error: {e}")
