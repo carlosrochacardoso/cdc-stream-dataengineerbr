@@ -3,7 +3,7 @@ version: '3.2'
 services:
 
   db:
-    image: mariadb:latest
+    image: mariadb:10.5.4
     ports:
       - 3306:3306
     environment:
@@ -18,7 +18,7 @@ services:
         target: /etc/mysql/conf.d
   
   dbproxy:
-    image: mariadb/maxscale:latest
+    image: mariadb/maxscale:2.4.10
     ports:
       - 6603:6603
       - 4001:4001
